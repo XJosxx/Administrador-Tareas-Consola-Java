@@ -1,6 +1,7 @@
 
 # Sistema de Tareas
 
+## descripción
 
 Sistema de consola en Java que permite gestionar tareas mediante operaciones CRUD, incluyendo seguimiento por estado, prioridad, fecha y categoría.
 
