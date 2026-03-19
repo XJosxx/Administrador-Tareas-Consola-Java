@@ -51,7 +51,7 @@ bin/
 Compilar:
 
 ```powershell
-cd SistemaTareasV2\SistemaTareas
+cd SistemaTareas
 New-Item -ItemType Directory -Force .\bin | Out-Null
 $files = Get-ChildItem -Recurse -Filter *.java .\src | ForEach-Object { $_.FullName }
 javac -d .\bin $files
