@@ -67,12 +67,7 @@ public class TareaServicio implements InterfazTareaServicio {
      */
     public Tarea crearTarea(String titulo, String descripcion, LocalDate fechaLimite,
             PrioridadTarea prioridadInicial, Categoria categoriaInicial) {
-        if (fechaLimite == null) {
-            throw new IllegalArgumentException("La fecha limite no puede ser nula.");
-        }
-        if (fechaLimite.isBefore(hoy())) {
-            throw new IllegalArgumentException("La fecha limite no puede estar en el pasado.");
-        }
+        validarFechaFutura(fechaLimite);
         Tarea tarea = new Tarea(titulo, descripcion, fechaLimite, prioridadInicial, categoriaInicial);
         tarea.setId(contadorId++);
         repositorio.guardar(tarea);
@@ -83,33 +78,33 @@ public class TareaServicio implements InterfazTareaServicio {
      * Edita una tarea existente manteniendo reglas de validacion.
      */
     public void editarTarea(Integer id, String titulo, String descripcion, LocalDate fechaLimite, Categoria categoria) {
-        if (fechaLimite == null) {
-            throw new IllegalArgumentException("La fecha limite no puede ser nula.");
-        }
-        if (fechaLimite.isBefore(hoy())) {
-            throw new IllegalArgumentException("La fecha limite no puede estar en el pasado.");
-        }
-        Tarea tarea = buscarTareaPorId(id);
-        tarea.asignarTitulo(titulo);
-        tarea.asignarDescripcion(descripcion);
-        tarea.asignarFechaLimite(fechaLimite);
-        tarea.asignarCategoria(categoria);
+        validarId(id);
+        validarFechaFutura(fechaLimite);
+
+        repositorio.buscarPorId(id).ifPresent(tarea -> {
+            tarea.asignarTitulo(titulo);
+            tarea.asignarDescripcion(descripcion);
+            tarea.asignarFechaLimite(fechaLimite);
+            tarea.asignarCategoria(categoria);
+        });
     }
 
     /**
      * Elimina una tarea existente por id.
      */
     public void eliminarTarea(Integer id) {
-        Tarea tarea = buscarTareaPorId(id);
-        repositorio.eliminar(tarea);
+        validarId(id);
+        repositorio.buscarPorId(id).ifPresent(tarea -> {
+            repositorio.eliminar(tarea);
+        });
     }
 
     /**
      * Marca una tarea como completada.
      */
     public void marcarTareaCompletada(Integer id) {
-        Tarea tarea = buscarTareaPorId(id);
-        tarea.completada();
+        validarId(id);
+        repositorio.buscarPorId(id).ifPresent(Tarea::completada);
     }
 
     /**
@@ -175,7 +170,7 @@ public class TareaServicio implements InterfazTareaServicio {
         List<Tarea> listaTareas = repositorio.listarTodas();
         List<Tarea> resultado = new ArrayList<>();
         for (Tarea tarea : listaTareas) {
-            if (tarea.getCategoria() == categoria) {
+            if (tarea.getCategoria().equals(categoria)) {
                 resultado.add(tarea);
             }
         }
@@ -216,6 +211,12 @@ public class TareaServicio implements InterfazTareaServicio {
     private void validarId(Integer id) {
         if (id == null || id <= 0) {
             throw new IllegalArgumentException("Id invalido.");
+        }
+    }
+
+    private void validarFechaFutura(LocalDate fecha) {
+        if (fecha == null || fecha.isBefore(hoy())) {
+            throw new IllegalArgumentException("Fecha invalida.");
         }
     }
 }
