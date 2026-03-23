@@ -1,6 +1,7 @@
 
 # Sistema de Tareas
 
+## descripción
 
 Sistema de consola en Java que permite gestionar tareas mediante operaciones CRUD, incluyendo seguimiento por estado, prioridad, fecha y categoría.
 
@@ -50,7 +51,7 @@ bin/
 Compilar:
 
 ```powershell
-cd SistemaTareasV2\SistemaTareas
+cd SistemaTareas
 New-Item -ItemType Directory -Force .\bin | Out-Null
 $files = Get-ChildItem -Recurse -Filter *.java .\src | ForEach-Object { $_.FullName }
 javac -d .\bin $files
