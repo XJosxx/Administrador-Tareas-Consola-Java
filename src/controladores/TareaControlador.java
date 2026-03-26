@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Scanner;
+import excepciones.*;
 
 import entidades.Categoria;
 import entidades.PrioridadTarea;
@@ -33,60 +34,72 @@ public class TareaControlador {
         int opcion;
 
         do {
-            System.out.println("=====MENU====");
-            System.out.println("1.Crear Tarea");
-            System.out.println("2.Editar Tarea");
-            System.out.println("3.Listar Tareas");
-            System.out.println("4.Eliminar Tarea");
-            System.out.println("5.Marcar Tarea completada");
-            System.out.println("6.Listar pendientes");
-            System.out.println("7.Listar completadas");
-            System.out.println("8.Filtrar por fecha");
-            System.out.println("9.Filtrar por categoria");
-            System.out.println("10.Proximas a vencer");
-            System.out.println("0. Salir");
 
-            opcion = leerEntero("Seleccione opcion: ");
+            try {
 
-            switch (opcion) {
-                case 0:
-                    System.out.println("Saliendo.");
-                    scanner.close();
-                    break;
-                case 1:
-                    crearTarea();
-                    break;
-                case 2:
-                    editarTarea();
-                    break;
-                case 3:
-                    listarTarea();
-                    break;
-                case 4:
-                    eliminarTarea();
-                    break;
-                case 5:
-                    marcarTareaCompletada();
-                    break;
-                case 6:
-                    listarPendientes();
-                    break;
-                case 7:
-                    listarCompletadas();
-                    break;
-                case 8:
-                    filtrarPorFecha();
-                    break;
-                case 9:
-                    filtrarPorCategoria();
-                    break;
-                case 10:
-                    listarProximasAVencer();
-                    break;
-                default:
-                    System.out.println("ERROR (VALOR INVALIDO).\n");
-                    break;
+                System.out.println("=====MENU====");
+                System.out.println("1.Crear Tarea");
+                System.out.println("2.Editar Tarea");
+                System.out.println("3.Listar Tareas");
+                System.out.println("4.Eliminar Tarea");
+                System.out.println("5.Marcar Tarea completada");
+                System.out.println("6.Listar pendientes");
+                System.out.println("7.Listar completadas");
+                System.out.println("8.Filtrar por fecha");
+                System.out.println("9.Filtrar por categoria");
+                System.out.println("10.Proximas a vencer");
+                System.out.println("0. Salir");
+
+                opcion = leerEntero("Seleccione opcion: ");
+
+                switch (opcion) {
+                    case 0:
+                        System.out.println("Saliendo.");
+                        scanner.close();
+                        break;
+                    case 1:
+                        crearTarea();
+                        break;
+                    case 2:
+                        editarTarea();
+                        break;
+                    case 3:
+                        listarTarea();
+                        break;
+                    case 4:
+                        eliminarTarea();
+                        break;
+                    case 5:
+                        marcarTareaCompletada();
+                        break;
+                    case 6:
+                        listarPendientes();
+                        break;
+                    case 7:
+                        listarCompletadas();
+                        break;
+                    case 8:
+                        filtrarPorFecha();
+                        break;
+                    case 9:
+                        filtrarPorCategoria();
+                        break;
+                    case 10:
+                        listarProximasAVencer();
+                        break;
+                    default:
+                        System.out.println("ERROR (VALOR INVALIDO).\n");
+                        break;
+                }
+
+            } catch (TareaException e) {
+                System.err.println("\n[AVISO]" + e.getMessage() + "\n");
+                opcion = -1;
+            } catch (Exception e) {
+                System.err.println("[ERROR CRITICO]" + e.toString() + "\n");
+                opcion = -1;
             }
+
         } while (opcion != 0);
     }
 
@@ -102,12 +115,8 @@ public class TareaControlador {
         PrioridadTarea prioridad = leerPrioridad();
         Categoria categoria = leerCategoria();
 
-        try {
-            servicio.crearTarea(titulo, descripcion, fecha, prioridad, categoria);
-            System.out.println("Creado con exito.\n");
-        } catch (IllegalArgumentException e) {
-            System.out.println("No se pudo crear: " + e.getMessage() + "\n");
-        }
+        servicio.crearTarea(titulo, descripcion, fecha, prioridad, categoria);
+        System.out.println("Creado con exito.\n");
     }
 
     /**
@@ -115,17 +124,15 @@ public class TareaControlador {
      */
     private void editarTarea() {
         int id = leerEntero("Escriba id: ");
+        servicio.buscarTareaPorId(id);
+
         String titulo = leerTextoNoVacio("Titulo de tarea: ");
         String descripcion = leerTextoNoVacio("Descripcion de tarea: ");
         LocalDate fecha = leerFecha("Fecha limite (dd/MM/yyyy): ");
         Categoria categoria = leerCategoria();
 
-        try {
-            servicio.editarTarea(id, titulo, descripcion, fecha, categoria);
-            System.out.println("Editado con exito.\n");
-        } catch (IllegalArgumentException e) {
-            System.out.println("No se pudo editar: " + e.getMessage() + "\n");
-        }
+        servicio.editarTarea(id, titulo, descripcion, fecha, categoria);
+        System.out.println("Editado con exito.\n");
     }
 
     /**
@@ -142,12 +149,8 @@ public class TareaControlador {
     private void eliminarTarea() {
         System.out.print("\n==ELIMINAR TAREA==\n");
         int id = leerEntero("Escriba id: ");
-        try {
-            servicio.eliminarTarea(id);
-            System.out.println("Eliminado con exito.\n");
-        } catch (IllegalArgumentException e) {
-            System.out.println("No se pudo eliminar: " + e.getMessage() + "\n");
-        }
+        servicio.eliminarTarea(id);
+        System.out.println("Eliminacion finalizada.\n");
     }
 
     /**
@@ -155,12 +158,10 @@ public class TareaControlador {
      */
     private void marcarTareaCompletada() {
         int id = leerEntero("Escriba id: ");
-        try {
-            servicio.marcarTareaCompletada(id);
-            System.out.println("Marcado con exito.\n");
-        } catch (IllegalArgumentException e) {
-            System.out.println("No se pudo marcar: " + e.getMessage() + "\n");
-        }
+        servicio.buscarTareaPorId(id);
+        servicio.marcarTareaCompletada(id);
+
+        System.out.println("Tarea #" + id + " marcada como completada con éxito.\n");
     }
 
     /**
@@ -258,11 +259,11 @@ public class TareaControlador {
     private LocalDate leerFecha(String mensaje) {
         while (true) {
             System.out.print(mensaje);
-            String fechaInput = scanner.nextLine();
+            String fechaInput = scanner.nextLine().trim();
             try {
                 return LocalDate.parse(fechaInput, formato);
             } catch (DateTimeParseException e) {
-                System.out.println("Fecha invalida, use formato dd/MM/yyyy.");
+                System.out.println("Fecha invalida, use formato dd/MM/yyyy (ej: 25/12/2024)..");
             }
         }
     }
@@ -272,16 +273,12 @@ public class TareaControlador {
      */
     private PrioridadTarea leerPrioridad() {
         while (true) {
+            System.out.println("PRIORIDAD (ALTA, MEDIA, BAJA): ");
             int nivel = leerEntero("Prioridad (1=BAJA, 2=MEDIA, 3=ALTA): ");
             try {
-                return switch (nivel) {
-                    case 1 -> PrioridadTarea.BAJA;
-                    case 2 -> PrioridadTarea.MEDIA;
-                    case 3 -> PrioridadTarea.ALTA;
-                    default -> throw new IllegalArgumentException("Opcion no valida.");
-                };
+                return PrioridadTarea.desdeNumero(nivel);
             } catch (IllegalArgumentException e) {
-                System.out.println(e.getMessage());
+                System.out.println("Prioridad invalida, ingrese 1, 2 o 3.");
             }
         }
     }
@@ -296,7 +293,7 @@ public class TareaControlador {
             try {
                 return Categoria.desdeNumero(opcion);
             } catch (IllegalArgumentException e) {
-                System.out.println(e.getMessage());
+                System.out.println("Error: el numero no corresponde a una categoria valida.");
             }
         }
     }

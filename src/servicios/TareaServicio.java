@@ -7,6 +7,8 @@ import java.util.List;
 import entidades.Categoria;
 import entidades.PrioridadTarea;
 import entidades.Tarea;
+import excepciones.TareaNoEncontradaException;
+import excepciones.TareaValidacionException;
 import repositorios.InterfazTareaRepositorio;
 import repositorios.TareaRepositorioMemoria;
 
@@ -59,7 +61,7 @@ public class TareaServicio implements InterfazTareaServicio {
     public Tarea buscarTareaPorId(Integer id) {
         validarId(id);
         return repositorio.buscarPorId(id)
-                .orElseThrow(() -> new IllegalArgumentException("No existe una tarea con el ID: " + id));
+                .orElseThrow(() -> new TareaNoEncontradaException(id));
     }
 
     /**
@@ -72,6 +74,7 @@ public class TareaServicio implements InterfazTareaServicio {
         tarea.setId(contadorId++);
         repositorio.guardar(tarea);
         return tarea;
+
     }
 
     /**
@@ -81,12 +84,14 @@ public class TareaServicio implements InterfazTareaServicio {
         validarId(id);
         validarFechaFutura(fechaLimite);
 
-        repositorio.buscarPorId(id).ifPresent(tarea -> {
-            tarea.asignarTitulo(titulo);
-            tarea.asignarDescripcion(descripcion);
-            tarea.asignarFechaLimite(fechaLimite);
-            tarea.asignarCategoria(categoria);
-        });
+        Tarea tarea = repositorio.buscarPorId(id)
+                .orElseThrow(() -> new TareaNoEncontradaException(id));
+
+        tarea.asignarTitulo(titulo);
+        tarea.asignarDescripcion(descripcion);
+        tarea.asignarFechaLimite(fechaLimite);
+        tarea.asignarCategoria(categoria);
+
     }
 
     /**
@@ -210,13 +215,13 @@ public class TareaServicio implements InterfazTareaServicio {
      */
     private void validarId(Integer id) {
         if (id == null || id <= 0) {
-            throw new IllegalArgumentException("Id invalido.");
+            throw new TareaValidacionException("ID invalido. Debe ser un numero positivo.");
         }
     }
 
     private void validarFechaFutura(LocalDate fecha) {
         if (fecha == null || fecha.isBefore(hoy())) {
-            throw new IllegalArgumentException("Fecha invalida.");
+            throw new TareaValidacionException("La fecha limite debe ser futura.");
         }
     }
 }

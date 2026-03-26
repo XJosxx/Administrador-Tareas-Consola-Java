@@ -14,6 +14,15 @@ public enum PrioridadTarea {
         this.prioridad = prioridad;
     }
 
+    public static PrioridadTarea desdeNumero(int numero) {
+        return switch (numero) {
+            case 1 -> BAJA;
+            case 2 -> MEDIA;
+            case 3 -> ALTA;
+            default -> throw new IllegalArgumentException("Prioridad invalida.");
+        };
+    }
+
     /**
      * Devuelve el valor numerico de prioridad para salida en consola.
      */
